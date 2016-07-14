@@ -27,10 +27,15 @@ def include_meta_tags(context, page_object=None, page_title_field='title',
     if page_object is not None:
         # Get the meta tags for the object
         try:
+            # module_name was renamed to model_name in Django 1.8.
+            try:
+                ct_model_name = page_object._meta.model_name
+            except AttributeError:
+                ct_model_name = page_object._meta.module_name
             meta_tags = MetaTag.objects \
                 .get(object_id=page_object.id,
                      content_type__app_label=page_object._meta.app_label,
-                     content_type__model=page_object._meta.module_name)
+                     content_type__model=ct_model_name)
             # Get not blank title
             meta_tags.title = meta_tags.title or \
                 _get_page_title(page_object, page_title_field)
